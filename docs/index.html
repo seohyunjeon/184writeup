@@ -1,1 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>NPRs |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">From da Vinci to Warhol </br> Non-Photorealistic Rendering</h1>
+    <h2 align="middle">Alice Wu, Christine Lu, Grace Lin, Seohyun Jeon</h2>
+
+    <div class="padded">
+
+        <p>
+            Our project is to implement non-photorealistic rendering, such that images can be displayed stylistically which can be seen in animations or hand-drawn art we’re familiar with. This requires us to re-work the pathtracer we’ve implemented in previous projects with the ability to identify the structure of the objects we are rendering such that the resulting image still resembles the original.
+        </p>
+        
+        <o>
+
+            <h2 align="middle">Problem Description</h2>
+            <h3 align="middle">Why NPR?</h3>
+            <p>
+                Photorealistic rendering is not always the goal; for example, the ideas document mentioned that architectural and blueprint designs require structural clarity. In these situations, we need to clearly see where edges are and how curves fall, etc., which can be difficult if we have shadows and colors that obstruct or skew our view of the structure. Another example could be for animation or art; photorealistically rendered hair would likely look odd on a cartoon character mesh. 
+            </p>
+            <h3 align="middle">How?</h3>
+            <p>
+                We are currently intending on achieving 2 different styles⁠—one reminiscent of cel-shading, and another more artistic/illustrated one. For the cel-shading style, we are thinking of implementing irradiance thresholds; if the calculated irradiance at the surface is above/below a certain threshold, it will be mapped directly to one of the colors we have chosen for the style. For the more illustrated style, we may have to use some element of randomness to emulate a sketchy style. Our current ideas revolve around using randomness and larger chunks of the surface to fill in “pencil lines” for a sketchier style, or another threshold-based design for watercolor, with darkness and randomness on the edges to imitate watercolor bleeding. 
+
+            </p>
+            
+
+            <h2 align="middle">Goals and Deliverables</h2>
+            <h3 align="middle">What we plan to deliver</h3>
+
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/nprs.png" width="300px" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <p>
+                We plan to deliver the ability to render two types of non-photorealistic rendering, one that is cel-shading style such as "hope" or "jaipur noire" and one more illustration-style such as "notepad+" or "scribbles" as shown above.
+            </p>
+            <p>
+            	In order to measure the quality of this system, we will aim to (1) keep the image still representative as it would be with a normal path tracer, such that there is no question what the image is depicting, and (2) create a stylized and aesthetic render, which will be a more subjective measure but very relevant to the aim of our project. 
+            </p>
+
+            <h3 align="middle">Some questions to answer</h3>
+            <p>
+            	Where are contours on the image and how are they found? (“Contours” would refer to the boundary of different colors in the NPR) </br> </br>
+
+            	Similarly, how many boundaries (and hence colors) do we need to produce an aesthetically pleasing render that doesn't lose the original mesh structure? </br></br>
+
+            	How do NPRs compare to photorealistic rendering in terms of speed?
+
+            </p>
+
+            <h3 align="middle">What we hope to deliver</h3>
+            <p>Given adequate time, we want to allow the user to select which color their rendering is based off of and have the entire rendering’s color scheme be based off of that chosen color. Another additional feature could be an additional NPR, especially a more complicated one if time allows, like making the rendering look like paint. This would be more complex as we would need to differentiate what colors different paint strokes would be, along with the size of the strokes.</p>
+
+            <h2 align="middle">Schedule</h2>
+            <h3 align="middle">Pre-Milestone</h3>
+            <p>
+            	<b>Week 1: </b> Research and inspect existing Pathtracer code to figure out what we can keep and what we must change. For example, which functions do we need to modify to implement cel-shading boundaries? Come up with a more concrete game plan with specific coding tasks. </br></br>
+            	<b>Week 2: </b> Start implementing cel-shading and have something presentable by the milestone.
+            </p>
+
+            <h3 align="middle">Post-Milestone</h3>
+            <p>
+            	<b>Week 3: </b> Finish implementing cel-shading if necessary. Implement illustrated style rendering. </br></br>
+            	<b>Week 4: </b> Wrap up two rendering styles and add extra content (user choosing colors, different style, etc) if time allows. Prepare presentation.
+            </p>
+
+            <h2 align="middle">Resources</h2>
+            <p>
+            	We will use our existing code from project 3-1 and 3-2 to get a working implementation of a ray tracer and ray intersection to simulate light transportation. To render different styles, we may also take inspiration from our implementations of the BSDF functions to implement the shaders/distribution functions. 
+
+            </p>
+            <p>
+            	We will probably also render our own .dae files, and will follow the project 2 extra credit guidelines: https://cs184.eecs.berkeley.edu/sp21/docs/proj2 
+
+            </p>
+            <h3>Paper on NPR course:</h3>
+            <ul>
+            	<li> 
+            		https://diglib.eg.org/xmlui/bitstream/handle/10.2312/eged20201028/009-016.pdf?sequence=1
+            	</li>
+            </ul>
+
+            <h3>Tone Shading</h3>
+            <ul>
+            	<li>Different tone-based shading, relevant parts of the doc here: https://mrl.cs.nyu.edu/publications/npr-course1999/npr99.pdf (pg 89-92)</li>
+            	<li>Cel-shading/Toon shading abstract: https://www.cs.rpi.edu/~cutler/classes/advancedgraphics/S17/final_projects/amy_toshi.pdf </li>
+            	<li>Outlines steps we should take to implement toon shading: (p43-end) https://inworks.ucdenver.edu/jkb/iwks3400/Notes/IntroTo3D-Day4.pdf </li>
+            	<li>More steps on toon shading: http://rbwhitaker.wikidot.com/toon-shader</li>
+            </ul>
+            <h3>Hatching</h3>
+            <ul>
+            	<li>https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.175.2191&rep=rep1&type=pdf (p21-23)</li>
+            </ul>
+
+        </o></div>
+</body>
+</html>
+
+
+
+
 
