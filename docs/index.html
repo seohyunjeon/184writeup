@@ -25,18 +25,75 @@
         </p>
         
         <o>
+            <h1 align="middle">Milestone</h1>
+            <h2 align="middle">Current Progress</h2>
+            <p>
+                For edge detection, we first tried to implement edge detection by applying a post-processing edge detection algorithm with Sobel edge detection and convolution, but didn’t get the results we were looking for. When we rendered the image, the image noise became amplified, there were unnecessary edges made incorrectly, and we realized that the corners of each tile-sized chunk of the image (edge cases) were difficult to handle.
+            </p>
+            <p>
+                Instead, we started on distributed ray tracing edge detection by creating an additional edge ray per camera ray. Then, we detected edges and colored them black based on the differences in depth (time of object intersection) between the edge ray and camera ray. We set an arbitrary threshold for the maximum depth difference between the 2 rays and changed it to match our desired edge thickness. We were able to implement this edge detection algorithm, but we plan to refine it by implementing the more accurate slope heuristic for determining edges, and possibly shoot out multiple edge rays and take the average of depth differences for a more accurate depth measurement.
+            </p>
+            <p>
+                In addition, we’re going to continue working on the shading part. For this part, we find a color palette of 5 colors of different tones. We also find the range of colors in the image and separate it into 5 bins, each representing how light or dark the pixel is. For each pixel, we would map the original color to the closest one of the 5 colors, in order to create a cartoon effect. We processed these changes after finding the radiances for the image and populating the sample buffer. We used thresholds right before converting our radiances to RGB color values in order to create harsh shading.
+            </p>
+            <h2 align="middle">Reflecting on Progress</h2>
+            <p>
+                In reference to our previous plan, we may shorten the scope of the project by focusing on completing one non-realistic photo rendering style rather than two like we planned. If we finish this one quickly, we may continue with the second one, but we plan to recalibrate later, and would prioritize making one rendering more robust rather than merely completing two. We would rather add features such as user color picking for toon shading than begin a second NPR without enough time. We are on track with the schedule that we outlined in our project proposal.
+            </p>
+            <h2 align="middle">Preliminary Results</h2>
+            <h3 align="middle">Edge Detection</h3>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/sobel.png" width="300px" />
+                            <figcaption align="middle">Sobel edge detection</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/distrib.png" width="300px" />
+                            <figcaption align="middle">Distributed ray edge detection</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">Toon Shading</h3>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/speelio.png" width="300px" />
+                            <figcaption align="middle">Low thresholds</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/speelion.png" width="300px" />
+                            <figcaption align="middle">Conservative thresholds</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h2 align="middle">Video</h2>
+            <div align="center">
+                <iframe src="https://drive.google.com/file/d/1O5fheNzPFN89utPLkL4HoS5UJMinb_qO/preview" width="640" height="480"></iframe>
+            </div>
+            <h2 align="middle">Slides</h2>
+            <div align="center">
+                <a href="https://docs.google.com/presentation/d/1AVS_gr4xb06a1angjc-XXwmplr-1zu-NxdOlyNT1a08/edit?usp=sharing">Click here for slides!</a>
+            </div>
+
+            <hr />
+            <h1 align="middle">Proposal</h1>
 
             <h2 align="middle">Problem Description</h2>
             <h3 align="middle">Why NPR?</h3>
             <p>
-                Photorealistic rendering is not always the goal; for example, the ideas document mentioned that architectural and blueprint designs require structural clarity. In these situations, we need to clearly see where edges are and how curves fall, etc., which can be difficult if we have shadows and colors that obstruct or skew our view of the structure. Another example could be for animation or art; photorealistically rendered hair would likely look odd on a cartoon character mesh. 
+                Photorealistic rendering is not always the goal; for example, the ideas document mentioned that architectural and blueprint designs require structural clarity. In these situations, we need to clearly see where edges are and how curves fall, etc., which can be difficult if we have shadows and colors that obstruct or skew our view of the structure. Another example could be for animation or art; photorealistically rendered hair would likely look odd on a cartoon character mesh.
             </p>
             <h3 align="middle">How?</h3>
             <p>
-                We are currently intending on achieving 2 different styles⁠—one reminiscent of cel-shading, and another more artistic/illustrated one. For the cel-shading style, we are thinking of implementing irradiance thresholds; if the calculated irradiance at the surface is above/below a certain threshold, it will be mapped directly to one of the colors we have chosen for the style. For the more illustrated style, we may have to use some element of randomness to emulate a sketchy style. Our current ideas revolve around using randomness and larger chunks of the surface to fill in “pencil lines” for a sketchier style, or another threshold-based design for watercolor, with darkness and randomness on the edges to imitate watercolor bleeding. 
+                We are currently intending on achieving 2 different styles⁠—one reminiscent of cel-shading, and another more artistic/illustrated one. For the cel-shading style, we are thinking of implementing irradiance thresholds; if the calculated irradiance at the surface is above/below a certain threshold, it will be mapped directly to one of the colors we have chosen for the style. For the more illustrated style, we may have to use some element of randomness to emulate a sketchy style. Our current ideas revolve around using randomness and larger chunks of the surface to fill in “pencil lines” for a sketchier style, or another threshold-based design for watercolor, with darkness and randomness on the edges to imitate watercolor bleeding.
 
             </p>
-            
+
 
             <h2 align="middle">Goals and Deliverables</h2>
             <h3 align="middle">What we plan to deliver</h3>
@@ -54,16 +111,16 @@
                 We plan to deliver the ability to render two types of non-photorealistic rendering, one that is cel-shading style such as "hope" or "jaipur noire" and one more illustration-style such as "notepad+" or "scribbles" as shown above.
             </p>
             <p>
-            	In order to measure the quality of this system, we will aim to (1) keep the image still representative as it would be with a normal path tracer, such that there is no question what the image is depicting, and (2) create a stylized and aesthetic render, which will be a more subjective measure but very relevant to the aim of our project. 
+                In order to measure the quality of this system, we will aim to (1) keep the image still representative as it would be with a normal path tracer, such that there is no question what the image is depicting, and (2) create a stylized and aesthetic render, which will be a more subjective measure but very relevant to the aim of our project.
             </p>
 
             <h3 align="middle">Some questions to answer</h3>
             <p>
-            	Where are contours on the image and how are they found? (“Contours” would refer to the boundary of different colors in the NPR) </br> </br>
+                Where are contours on the image and how are they found? (“Contours” would refer to the boundary of different colors in the NPR) </br> </br>
 
-            	Similarly, how many boundaries (and hence colors) do we need to produce an aesthetically pleasing render that doesn't lose the original mesh structure? </br></br>
+                Similarly, how many boundaries (and hence colors) do we need to produce an aesthetically pleasing render that doesn't lose the original mesh structure? </br></br>
 
-            	How do NPRs compare to photorealistic rendering in terms of speed?
+                How do NPRs compare to photorealistic rendering in terms of speed?
 
             </p>
 
@@ -73,42 +130,42 @@
             <h2 align="middle">Schedule</h2>
             <h3 align="middle">Pre-Milestone</h3>
             <p>
-            	<b>Week 1: </b> Research and inspect existing Pathtracer code to figure out what we can keep and what we must change. For example, which functions do we need to modify to implement cel-shading boundaries? Come up with a more concrete game plan with specific coding tasks. </br></br>
-            	<b>Week 2: </b> Start implementing cel-shading and have something presentable by the milestone.
+                <b>Week 1: </b> Research and inspect existing Pathtracer code to figure out what we can keep and what we must change. For example, which functions do we need to modify to implement cel-shading boundaries? Come up with a more concrete game plan with specific coding tasks. </br></br>
+                <b>Week 2: </b> Start implementing cel-shading and have something presentable by the milestone.
             </p>
 
             <h3 align="middle">Post-Milestone</h3>
             <p>
-            	<b>Week 3: </b> Finish implementing cel-shading if necessary. Implement illustrated style rendering. </br></br>
-            	<b>Week 4: </b> Wrap up two rendering styles and add extra content (user choosing colors, different style, etc) if time allows. Prepare presentation.
+                <b>Week 3: </b> Finish implementing cel-shading if necessary. Implement illustrated style rendering. </br></br>
+                <b>Week 4: </b> Wrap up two rendering styles and add extra content (user choosing colors, different style, etc) if time allows. Prepare presentation.
             </p>
 
             <h2 align="middle">Resources</h2>
             <p>
-            	We will use our existing code from project 3-1 and 3-2 to get a working implementation of a ray tracer and ray intersection to simulate light transportation. To render different styles, we may also take inspiration from our implementations of the BSDF functions to implement the shaders/distribution functions. 
+                We will use our existing code from project 3-1 and 3-2 to get a working implementation of a ray tracer and ray intersection to simulate light transportation. To render different styles, we may also take inspiration from our implementations of the BSDF functions to implement the shaders/distribution functions.
 
             </p>
             <p>
-            	We will probably also render our own .dae files, and will follow the project 2 extra credit guidelines: https://cs184.eecs.berkeley.edu/sp21/docs/proj2 
+                We will probably also render our own .dae files, and will follow the project 2 extra credit guidelines: https://cs184.eecs.berkeley.edu/sp21/docs/proj2
 
             </p>
             <h3>Paper on NPR course:</h3>
             <ul>
-            	<li> 
-            		https://diglib.eg.org/xmlui/bitstream/handle/10.2312/eged20201028/009-016.pdf?sequence=1
-            	</li>
+                <li>
+                    https://diglib.eg.org/xmlui/bitstream/handle/10.2312/eged20201028/009-016.pdf?sequence=1
+                </li>
             </ul>
 
             <h3>Tone Shading</h3>
             <ul>
-            	<li>Different tone-based shading, relevant parts of the doc here: https://mrl.cs.nyu.edu/publications/npr-course1999/npr99.pdf (pg 89-92)</li>
-            	<li>Cel-shading/Toon shading abstract: https://www.cs.rpi.edu/~cutler/classes/advancedgraphics/S17/final_projects/amy_toshi.pdf </li>
-            	<li>Outlines steps we should take to implement toon shading: (p43-end) https://inworks.ucdenver.edu/jkb/iwks3400/Notes/IntroTo3D-Day4.pdf </li>
-            	<li>More steps on toon shading: http://rbwhitaker.wikidot.com/toon-shader</li>
+                <li>Different tone-based shading, relevant parts of the doc here: https://mrl.cs.nyu.edu/publications/npr-course1999/npr99.pdf (pg 89-92)</li>
+                <li>Cel-shading/Toon shading abstract: https://www.cs.rpi.edu/~cutler/classes/advancedgraphics/S17/final_projects/amy_toshi.pdf </li>
+                <li>Outlines steps we should take to implement toon shading: (p43-end) https://inworks.ucdenver.edu/jkb/iwks3400/Notes/IntroTo3D-Day4.pdf </li>
+                <li>More steps on toon shading: http://rbwhitaker.wikidot.com/toon-shader</li>
             </ul>
             <h3>Hatching</h3>
             <ul>
-            	<li>https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.175.2191&rep=rep1&type=pdf (p21-23)</li>
+                <li>https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.175.2191&rep=rep1&type=pdf (p21-23)</li>
             </ul>
 
         </o></div>
