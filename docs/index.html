@@ -15,16 +15,194 @@
 </head>
 <body>
 <br />
-<h1 align="middle">From da Vinci to Warhol </br> Non-Photorealistic Rendering</h1>
+<h1 align="middle">From da Vinci to Warhol </br> Non-Photorealistic Rendering: Pop Art</h1>
     <h2 align="middle">Alice Wu, Christine Lu, Grace Lin, Seohyun Jeon</h2>
 
     <div class="padded">
 
         <p>
-            Our project is to implement non-photorealistic rendering, such that images can be displayed stylistically which can be seen in animations or hand-drawn art we’re familiar with. This requires us to re-work the pathtracer we’ve implemented in previous projects with the ability to identify the structure of the objects we are rendering such that the resulting image still resembles the original.
+            For our final project, we implemented non-photorealistic rendering in the pop art style. In order to achieve this, we need to be able to detect forms within an image to outline them and detect distinct levels of light in the image in order to create a color block effect. We need to make sure that the resulting image still clearly represents the original image, while still being stylized. Our implementation can be seen as the culmination of four features: edge detection, cel shading, corner detection, and user input. The edge and corner detection algorithms are used to create dark outlines to depict shapes, while cel shading maps different levels of radiance in the image to several colors. The user image feature makes this rendering user-friendly, allowing one to indicate whether to use this render and which color scheme to use.
         </p>
         
         <o>
+            <h1 align="middle">Final Deliverables</h1>
+            <div align="center">
+                <iframe src="https://drive.google.com/file/d/1Lg-JWHw0LT9eDWdDA5SniZfR6ktin_ap/preview" width="640" height="480"></iframe>
+            </div>
+            <h2 align="middle">Technical Approach</h2>
+            <h3 align="middle">Edge Detection</h3>
+            <p>We used a reference on edge detection with ray tracing for inspiration on implementing edge detection. From this paper, we got the idea of shooting an additional parallel ray at a small offset from the original ray. To cater this to our project code, we set the x,y direction (in image space) of the new ray to the x,y direction of the original camera ray (in image space) plus a small float between 0 and 1, and shot the ray through the scene to get its intersection information. To determine edges, we used a heuristic in the paper where we calculated the difference in intersection times (depth) between the 2 rays, and set the color black for ray depth differences larger than a maximum threshold. We adjusted our threshold depth difference value to produce our desired edge thickness.</p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/distrib.png" width="400px" />
+                            <figcaption align="middle">Distributed ray edge detection</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">Cel Shading</h3>
+            <p>We used a reference on edge detection with ray tracing for inspiration on impIn order to implement cel shading with harsh shadows, we came up with the idea of post-processing the image and “rounding” or truncating every color to the nearest of some chosen set of colors. To do this, we tracked down the last step before the data from raytracing was converted to color⁠—in image.h⁠—and added a threshold system. If the calculated irradiance in the image buffer was greater than a certain value (which we found by tweaking values until they produced visually pleasing results for various models) it would be overwritten with a color of our choice. In order to smooth the color boundaries and achieve a better pop art effect, we only used direct illumination to produce our underlying image.   </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/edgeandcel.png" width="400px" />
+                            <figcaption align="middle">Preliminary cel shading + edge detection</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">Corner Detection</h3>
+            <p>Our corner detection algorithm was created from inspiration from the edge detection algorithm. Since we know that corners are defined by two planes forming a 90 degree angle, we want to see at any given point, if it lies at such an intersection. To do this, at each point in the image space, we fire an additional offset camera ray to the random offset camera ray already fired for edge detection near that point. If both camera rays intersect with the image, and the normal rays at their intersections are perpendicular, then the point lies in a corner. To account for the randomness of the two camera rays, we create a threshold for the angle between the two normal rays to not just be exactly 90 degrees. Basically, if we were to shoot out a ray from one side of a corner and another ray from the other side, we would expect them to be perpendicular. This method of firing two slightly offset camera rays and checking the angle between their normal rays achieves the same purpose. For each point that we have detected does indeed lie in a corner, we color that pixel black to create the outline along the corner.</p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/corners.png" width="400px" />
+                            <figcaption align="middle">Wall corner edge detection</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">User Input</h3>
+            <p>To allow our non-photorealistic rendering to be used easily, we integrated it into the already existing pathtracer executable’s design. In order to render an image with the pop art effect, one would add a -C flag to their argument followed by an integer from 0-5. A value of 0 would indicate that the NPR shouldn’t be run (this is also the default value if -C isn’t included), and the values 1-4 map to four distinct color schemes. </p>
+
+
+            <h2 align="middle">Challenges and Problems</h2>
+            <h3 align="middle">Sobel Edge Detection</h3>
+            <p>We initially tried to implement edge detection using Sobel Edge detection and convolution. However, when we attempted to implement it using the project 3 base code, we struggled a lot with the edge handling. We put our code in raytrace_tile in raytraced_renderer.cpp and thought we could deal with some of the edge issues by extending pass the tile. However, we couldn't seem to get this to work, and the result seemed rather noisy. As a result, we reevaluated our approach and decided to attempt ray tracing edge detection instead.</p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/sobel.png" width="400px" />
+                            <figcaption align="middle">Sobel edge detection</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3 align="middle">Cel Shading</h3>
+            <p>Our main challenge with implementing cel shading was digesting the project 3 code that we hadn’t touched before, and figuring out where to put our threshold/mapping logic. We spent a long time testing out different places to modify the code, but realized that due to the way the project used tiles to speed up rendering, we would have to find a place to deal directly with each individual pixel’s color. Eventually, we figured out that this could be achieved during the process of writing the image buffer to color.</p>
+            <p>
+                Another issue we faced was poor color blocking; we wanted our color thresholds to be clean, with no gradients or noise with different colored pixels dotting an otherwise relatively constant area. We considered implementing a “smart” blocking method that would adjust any pixels that differed from those surrounding them, but found a simple workaround instead: only using direct illumination. When using global illumination, shadows were not consistently dark enough to produce good color blocking, and would have very noisy results. Since we were not trying to achieve realistic lighting anyway, we realized that direct illumination would produce a better underlying image and get rid of the majority of the noise we were struggling with.
+            </p>
+            <p>
+                One attempted way to achieve cel-shading was by selecting the appropriate color for each pixel when ray tracing - mapping the intensity of the light at that position to one of the pop art colors. We calculated intensity by finding the dot product between the light direction and normal ray coming from that point in the scene, and use create buckets of light intensities in order to assign new colors. This ended up having a lot of noise. Also, the thresholds for the buckets were hard to find, as the intensities ranged from 0 to 1 but were heavily skewed to the 0-side.
+            </p>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/speelio.png" width="400px" />
+                            <figcaption align="middle">Noisy color blocking</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2 align="middle">Lessons Learned</h2>
+            <p>
+                We learned that we could reuse the ray system that was already implemented for more than just strictly ray tracing. We were able to use the camera ray and intersection functionality to implement both object edge detection and corner edge detection; instead of tracing rays to calculate irradiance, we traced offset rays to see if there was a depth difference (indicating an object edge) or if the offset rays had perpendicular normals (indicating a wall corner).
+            </p>
+            <p>
+                Another important realization was that taking away some of our existing project 3 code was valid. At first we were stuck in the mindset that we could only build on top of project 3, and that nothing should be removed/dialed down. However, because our project was to create non-photorealistic rendering, there was no need to use global illumination, a technique that exists to create more realistic renders. Taking this away from our project helped us get a lot closer to our end goal, and helped us realize that the true form of images are defined by simplicity. Many concepts we learn in class allow for images to look more and more realistic, but in this project, when we actually want to create a stylistically simplified image, we are able to see what really is needed to depict the bare bones of an image and what is unnecessary.
+            </p>
+
+            <h2 align="middle">Final Results: Pop Art!</h2>
+            <h3 align="middle">Spheres</h3>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/c1.png" width="300px" />
+                            <figcaption align="middle">-C 1 on spheres</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/c2.png" width="300px" />
+                            <figcaption align="middle">-C 2 on spheres</figcaption>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/c3.png" width="300px" />
+                            <figcaption align="middle">-C 3 on spheres</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/c4.png" width="300px" />
+                            <figcaption align="middle">-C 4 on spheres</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">Bunnies</h3>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/c1b.png" width="300px" />
+                            <figcaption align="middle">-C 1 on bunny</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/c2b.png" width="300px" />
+                            <figcaption align="middle">-C 2 on bunny</figcaption>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/c3b.png" width="300px" />
+                            <figcaption align="middle">-C 3 on bunny</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/c4b.png" width="300px" />
+                            <figcaption align="middle">-C 4 on bunny</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h3 align="middle">Dragons</h3>
+            <div align="center">
+                <table style="width=100%">
+                    <tr>
+                        <td align="middle">
+                            <img src="./images/c1d.png" width="300px" />
+                            <figcaption align="middle">-C 1 on dragon</figcaption>
+                        </td>
+                        <td align="middle">
+                            <img src="./images/c2d.png" width="300px" />
+                            <figcaption align="middle">-C 2 on dragon</figcaption>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <p>Something cool to note here is that our edge detection algorithm worked for outlining inside the dragon's mouth! We can see a black line along the top teeth closest to us, helping define the image.</p>
+
+            <h2 align="middle">References</h2>
+            <ul>
+                <li>
+                    https://www.cs.rpi.edu/~cutler/classes/advancedgraphics/S17/final_projects/amy_toshi.pdf
+                </li>
+            </ul>
+            <h2 align="middle">Team Contributions</h2>
+            <ul>
+                <li>
+                    <b>Alice:</b> Implemented ray tracing edge detection, attempted Sobel edge detection and convolution, participated in initial research/searching for important resources
+                </li>
+                <li>
+                    <b>Christine:</b> Implemented ray tracing edge detection, attempted Sobel edge detection and convolution, searched for cel shading/edge detection references
+                </li>
+                <li>
+                    <b>Grace:</b> Implemented corner detection and user input features, helped with cel shading and combining edge detection and cel shading code.
+                </li>
+                <li>
+                    <b>Seohyun:</b> Implemented cel shading, combined object edge detection and cel shading code, helped come up with corner detection method
+                </li>
+            </ul>
+
+            <hr />
+
             <h1 align="middle">Milestone</h1>
             <h2 align="middle">Current Progress</h2>
             <p>
